@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Secure File Storage{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h2>📝 Create Account</h2>
+        <p class="auth-subtitle">Join our secure file storage platform</p>
+        
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Choose a username (min 3 characters)" 
+                       autocomplete="username" minlength="3">
+                <small>Username must be at least 3 characters long</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Create a strong password (min 6 characters)" 
+                       autocomplete="new-password" minlength="6">
+                <small>Password must be at least 6 characters long</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required 
+                       placeholder="Re-enter your password" autocomplete="new-password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Create Account</button>
+        </form>
+        
+        <div class="auth-links">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+        </div>
+        
+        <div class="security-info">
+            <h3>🔐 What happens during registration?</h3>
+            <ol>
+                <li>🔑 Your password is hashed with bcrypt + salt</li>
+                <li>🗝️ A unique RSA key pair is generated for you</li>
+                <li>🔒 Your private key is encrypted with your password</li>
+                <li>💾 Only encrypted data is stored in our database</li>
+                <li>🛡️ Your files will be encrypted with AES-256</li>
+            </ol>
+            
+            <div class="warning">
+                <strong>⚠️ Important:</strong> If you forget your password, your files cannot be recovered. 
+                There is no password reset feature by design for maximum security.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Password confirmation validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}

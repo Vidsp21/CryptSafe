@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Secure File Storage{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>📁 Your Encrypted Files</h2>
+        <a href="{{ url_for('upload_file') }}" class="btn btn-primary">📤 Upload New File</a>
+    </div>
+    
+    {% if files %}
+        <div class="files-grid">
+            {% for file in files %}
+                <div class="file-card">
+                    <div class="file-icon">
+                        {% set ext = file.original_filename.split('.')[-1].lower() %}
+                        {% if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp'] %}
+                            🖼️
+                        {% elif ext in ['pdf'] %}
+                            📄
+                        {% elif ext in ['txt', 'md'] %}
+                            📝
+                        {% elif ext in ['zip', 'rar', '7z'] %}
+                            📦
+                        {% elif ext in ['mp3', 'wav', 'flac'] %}
+                            🎵
+                        {% elif ext in ['mp4', 'avi', 'mkv'] %}
+                            🎬
+                        {% elif ext in ['doc', 'docx'] %}
+                            📃
+                        {% elif ext in ['xls', 'xlsx'] %}
+                            📊
+                        {% elif ext in ['ppt', 'pptx'] %}
+                            📊
+                        {% else %}
+                            📄
+                        {% endif %}
+                    </div>
+                    
+                    <div class="file-info">
+                        <h3 class="file-name">{{ file.original_filename }}</h3>
+                        <div class="file-details">
+                            <span class="file-size">{{ "%.2f"|format(file.file_size / 1024) }} KB</span>
+                            <span class="file-date">{{ file.upload_date.split(' ')[0] }}</span>
+                        </div>
+                        <div class="file-security">
+                            <span class="security-badge">🔒 AES-256 Encrypted</span>
+                            <span class="integrity-badge">✅ SHA-256 Verified</span>
+                        </div>
+                    </div>
+                    
+                    <div class="file-actions">
+                        <a href="{{ url_for('download_file', file_id=file.id) }}" 
+                           class="btn btn-download" title="Download and decrypt file">
+                            📥 Download
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_file', file_id=file.id) }}" 
+                              style="display: inline;" 
+                              onsubmit="return confirm('Are you sure you want to delete {{ file.original_filename }}? This action cannot be undone.')">
+                            <button type="submit" class="btn btn-danger" title="Delete file permanently">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3>📊 Statistics</h3>
+                <p><strong>Total Files:</strong> {{ files|length }}</p>
+                <p><strong>Total Size:</strong> {{ "%.2f"|format((files|sum(attribute='file_size')) / 1024 / 1024) }} MB</p>
+                <p><strong>Encryption:</strong> AES-256 + RSA-2048</p>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>No files uploaded yet</h3>
+            <p>Your encrypted files will appear here once you upload them.</p>
+            <p>All files are automatically encrypted with AES-256 before storage.</p>
+            <a href="{{ url_for('upload_file') }}" class="btn btn-primary">📤 Upload Your First File</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="security-summary">
+    <h3>🔐 Security Summary</h3>
+    <div class="security-grid">
+        <div class="security-item">
+            <span class="security-icon">🔒</span>
+            <div>
+                <strong>File Encryption</strong>
+                <p>AES-256-CBC encryption for all files</p>
+            </div>
+        </div>
+        <div class="security-item">
+            <span class="security-icon">🗝️</span>
+            <div>
+                <strong>Key Management</strong>
+                <p>RSA-2048 encrypted AES keys</p>
+            </div>
+        </div>
+        <div class="security-item">
+            <span class="security-icon">🔍</span>
+            <div>
+                <strong>Integrity Check</strong>
+                <p>SHA-256 hash verification</p>
+            </div>
+        </div>
+        <div class="security-item">
+            <span class="security-icon">🛡️</span>
+            <div>
+                <strong>Zero-Knowledge</strong>
+                <p>No plaintext storage on server</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

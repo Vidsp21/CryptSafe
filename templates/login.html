@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Secure File Storage{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h2>🔐 Login</h2>
+        <p class="auth-subtitle">Access your encrypted files securely</p>
+        
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="Enter your username" autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Enter your password" autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        
+        <div class="auth-links">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+        </div>
+        
+        <div class="security-info">
+            <h3>🔒 Security Features</h3>
+            <ul>
+                <li>🔐 AES-256 file encryption</li>
+                <li>🗝️ RSA key pair authentication</li>
+                <li>🔍 SHA-256 integrity verification</li>
+                <li>🛡️ Bcrypt password hashing</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

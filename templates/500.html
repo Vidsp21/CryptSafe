@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Secure File Storage{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-icon">⚠️</div>
+        <h1>500 - Server Error</h1>
+        <p>Something went wrong on our end. Please try again later.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">🏠 Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

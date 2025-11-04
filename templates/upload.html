@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Upload File - Secure File Storage{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <div class="upload-form">
+        <h2>📤 Upload & Encrypt File</h2>
+        <p class="upload-subtitle">Your file will be automatically encrypted with AES-256</p>
+        
+        <form method="POST" enctype="multipart/form-data" class="form" id="uploadForm">
+            <div class="file-drop-zone" id="dropZone">
+                <div class="drop-content">
+                    <div class="upload-icon">📁</div>
+                    <p><strong>Drag and drop your file here</strong></p>
+                    <p>or</p>
+                    <label for="file" class="btn btn-secondary">Choose File</label>
+                    <input type="file" id="file" name="file" required style="display: none;">
+                </div>
+                <div class="file-preview" id="filePreview" style="display: none;">
+                    <div class="file-info">
+                        <span class="file-icon">📄</span>
+                        <div class="file-details">
+                            <div class="file-name" id="fileName"></div>
+                            <div class="file-size" id="fileSize"></div>
+                        </div>
+                        <button type="button" class="remove-file" id="removeFile">&times;</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="encryption-info">
+                <h3>🔐 Encryption Process</h3>
+                <div class="process-steps">
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <div class="step-content">
+                            <strong>Generate AES Key</strong>
+                            <p>A unique 256-bit AES key is generated for your file</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <div class="step-content">
+                            <strong>Encrypt File</strong>
+                            <p>Your file is encrypted using AES-256-CBC</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <div class="step-content">
+                            <strong>Secure Key</strong>
+                            <p>The AES key is encrypted with your RSA public key</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <div class="step-content">
+                            <strong>Verify Integrity</strong>
+                            <p>SHA-256 hash is calculated for integrity verification</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>
+                🔒 Encrypt & Upload File
+            </button>
+        </form>
+        
+        <div class="upload-progress" id="uploadProgress" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Encrypting and uploading...</p>
+        </div>
+        
+        <div class="upload-limits">
+            <h3>📋 Upload Limits & Security</h3>
+            <ul>
+                <li><strong>Maximum file size:</strong> 16 MB</li>
+                <li><strong>Supported formats:</strong> All file types</li>
+                <li><strong>Encryption:</strong> AES-256-CBC with unique keys</li>
+                <li><strong>Storage:</strong> No plaintext data stored</li>
+                <li><strong>Access:</strong> Only you can decrypt your files</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('file');
+const filePreview = document.getElementById('filePreview');
+const uploadBtn = document.getElementById('uploadBtn');
+const uploadForm = document.getElementById('uploadForm');
+const uploadProgress = document.getElementById('uploadProgress');
+
+// File size limit (16MB)
+const MAX_FILE_SIZE = 16 * 1024 * 1024;
+
+// Drag and drop functionality
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFileSelect(files[0]);
+    }
+});
+
+// File input change
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+// Handle file selection
+function handleFileSelect(file) {
+    if (file.size > MAX_FILE_SIZE) {
+        alert('File size exceeds 16MB limit. Please choose a smaller file.');
+        return;
+    }
+    
+    // Update file input
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+    
+    // Show file preview
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = formatFileSize(file.size);
+    
+    dropZone.querySelector('.drop-content').style.display = 'none';
+    filePreview.style.display = 'block';
+    uploadBtn.disabled = false;
+}
+
+// Remove file
+document.getElementById('removeFile').addEventListener('click', () => {
+    fileInput.value = '';
+    dropZone.querySelector('.drop-content').style.display = 'block';
+    filePreview.style.display = 'none';
+    uploadBtn.disabled = true;
+});
+
+// Format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Handle form submission
+uploadForm.addEventListener('submit', (e) => {
+    if (!fileInput.files.length) {
+        e.preventDefault();
+        alert('Please select a file to upload.');
+        return;
+    }
+    
+    // Show progress bar
+    uploadProgress.style.display = 'block';
+    uploadBtn.disabled = true;
+    
+    // Simulate progress (in real implementation, you'd track actual progress)
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('progressText').textContent = 
+            `Encrypting and uploading... ${Math.round(progress)}%`;
+    }, 200);
+    
+    // Clear interval when form actually submits
+    setTimeout(() => {
+        clearInterval(interval);
+    }, 5000);
+});
+</script>
+{% endblock %}
